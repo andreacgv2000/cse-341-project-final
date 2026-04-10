@@ -67,12 +67,14 @@ const specs = swaggerJsdoc({
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
 
-// DB
+// 🔥 IMPORTANTE: ARRANCAR SERVER SIEMPRE
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, ()=>{
+  console.log(`Server running on port ${PORT}`);
+});
+
+// 🔥 CONECTAR MONGO SIN BLOQUEAR
 mongoose.connect(process.env.MONGODB_URI)
-.then(()=>{
-  console.log('MongoDB connected');
-  app.listen(process.env.PORT || 3000, ()=>{
-    console.log(`Server running`);
-  });
-})
-.catch(err=> console.log(err));
+  .then(()=> console.log('MongoDB connected'))
+  .catch(err=> console.error('Mongo error:', err));

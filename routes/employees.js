@@ -6,12 +6,12 @@ const controller = require('../controllers/employeesController');
 const isAuthenticated = require('../middleware/auth');
 
 const validate = [
-  body('name').notEmpty()
+  body('name').notEmpty().withMessage('Name is required')
 ];
 
-const handle = (req,res,next)=>{
+const handleValidation = (req, res, next) => {
   const errors = validationResult(req);
-  if(!errors.isEmpty()) return res.status(400).json({errors:errors.array()});
+  if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
   next();
 };
 
@@ -24,19 +24,99 @@ const handle = (req,res,next)=>{
  *       required:
  *         - name
  *       properties:
- *         name: { type: string }
- *         position: { type: string }
- *         phone: { type: string }
- *         email: { type: string }
- *         hireDate: { type: string }
- *         salary: { type: number }
- *         status: { type: string }
+ *         name:
+ *           type: string
+ *         position:
+ *           type: string
+ *         phone:
+ *           type: string
+ *         email:
+ *           type: string
+ *         hireDate:
+ *           type: string
+ *         salary:
+ *           type: number
+ *         status:
+ *           type: string
  */
 
+/**
+ * @swagger
+ * /employees:
+ *   get:
+ *     summary: Get all employees
+ *     responses:
+ *       200:
+ *         description: Success
+ */
 router.get('/', controller.getAll);
+
+/**
+ * @swagger
+ * /employees/{id}:
+ *   get:
+ *     summary: Get employee by ID
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *     responses:
+ *       200:
+ *         description: Success
+ */
 router.get('/:id', controller.getById);
-router.post('/', isAuthenticated, validate, handle, controller.create);
-router.put('/:id', isAuthenticated, validate, handle, controller.update);
+
+/**
+ * @swagger
+ * /employees:
+ *   post:
+ *     summary: Create employee
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/Employee'
+ *     responses:
+ *       201:
+ *         description: Created
+ */
+router.post('/', isAuthenticated, validate, handleValidation, controller.create);
+
+/**
+ * @swagger
+ * /employees/{id}:
+ *   put:
+ *     summary: Update employee
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/Employee'
+ *     responses:
+ *       200:
+ *         description: Updated
+ */
+router.put('/:id', isAuthenticated, validate, handleValidation, controller.update);
+
+/**
+ * @swagger
+ * /employees/{id}:
+ *   delete:
+ *     summary: Delete employee
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *     responses:
+ *       200:
+ *         description: Deleted
+ */
 router.delete('/:id', isAuthenticated, controller.delete);
 
 module.exports = router;
